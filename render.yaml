@@ -63,7 +63,7 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: ./build
     routes:
       - type: rewrite
         source: /*
