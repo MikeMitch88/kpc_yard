@@ -1,17 +1,17 @@
-# KPC Yard Control Plane — Backend
+# Njiasmart — Backend Service
 
-Node.js + Express REST API and real-time event infrastructure for the KPC Depot Autonomous Yard & Queue Control Plane.
+Node.js + Express REST API and real-time event infrastructure for the Njiasmart Automated Yard & Queue Control Plane.
 
 ---
 
 ## Overview
 
-The backend provides the control plane for the Kenya Pipeline Company (KPC) MBA depot. It manages the full lifecycle of tanker trucks flowing through the yard — gate entry, weighbridge verification, AI bay matching, gantry loading, and exit — entirely through an autonomous closed-loop control system with no human dispatcher required.
+The backend provides the automated control plane for the MBA depot. It manages the full lifecycle of tanker trucks flowing through the yard — gate entry, weighbridge verification, Autonomous Bay Allocation, gantry loading, and exit — entirely through an autonomous closed-loop control system with no human dispatcher required.
 
 **Key capabilities:**
-- **ANPR Gate Entry** — license plate capture validated against the scheduled batch manifest, issuing KPC digital tokens
+- **ANPR Gate Entry** — license plate capture validated against the scheduled batch manifest, issuing digital yard tokens
 - **Checkpoint Verification** — RFID readings at Gate → Weighbridge → Gantry → Exit with strict sequence enforcement and weighbridge gross-weight validation
-- **AI Bay Matching** — scores candidate gantries by product compatibility, pump rate, queue forecast, and health to assign the optimal bay
+- **Autonomous Bay Allocation** — scores candidate gantries by product compatibility, pump rate, queue forecast, and health to assign the optimal bay
 - **Closed-Loop Auto-Reroute** — anomaly detector scans for dead gantries, queue overflows, load hangs, and pump degradation, then automatically reroutes queued vehicles
 - **Pre-Movement Dispatch** — SMS staging alerts fired when a gantry load is within the alert window, zero wasted demurrage time
 - **ESG & Compliance** — carbon-spill risk scoring, fleet transit compliance (speed + dwell), and demurrage ROI telemetry
@@ -52,7 +52,7 @@ backend/
 │   │   └── errorHandler.js    # Custom ApiError class + Express error middleware
 │   ├── routes/
 │   │   ├── index.js           # Router mount + /stream SSE handler + /health
-│   │   ├── auth.routes.js     # POST /auth/demo (dev token factory)
+│   │   ├── auth.routes.js     # POST /auth/demo (sandbox token factory)
 │   │   ├── gate.routes.js     # ANPR entry, manifest, dispatch SMS
 │   │   ├── checkpoint.routes.js  # RFID scan, history, loading start/complete
 │   │   ├── controlPlane.routes.js # Metrics, ESG, compliance, anomalies, cycle commands
@@ -100,7 +100,7 @@ All endpoints are prefixed with `/api` (mounted in `app.js`).
 ### Authenticated (JWT Bearer token required)
 | Method | Endpoint                          | Roles                          | Description                       |
 |--------|-----------------------------------|--------------------------------|-----------------------------------|
-| POST   | `/auth/demo`                      | *                              | Issue a demo JWT                  |
+| POST   | `/auth/demo`                      | *                              | Issue a sandbox JWT                |
 | POST   | `/gate/entry`                     | gate-officer, system, depot-manager, executive | ANPR gate capture → token issue |
 | POST   | `/gate/dispatch-sms`              | gate-officer, depot-manager, executive, system | Send SMS queue pass         |
 | GET    | `/gate/manifest`                  | all                            | Current batch manifest            |
@@ -205,7 +205,7 @@ Test coverage includes: API surface (auth, gate, checkpoints, control-plane, dri
 
 ## Architecture Notes
 
-- **Emulator Mode**: When Firebase credentials are absent (or `EMULATOR_MODE=true`), the backend uses an in-memory RTDB-compatible store (`src/services/memoryStore.js`) — no external database required for development or hackathon demos.
+- **Emulator Mode**: When Firebase credentials are absent (or `EMULATOR_MODE=true`), the backend uses an in-memory RTDB-compatible store (`src/services/memoryStore.js`) — no external database required for development or sandbox environments.
 - **SSE Stream**: `/api/stream` opens a persistent Server-Sent Events connection. The `useYardStream` React hook on the frontend subscribes to this for live updates. Heartbeat every 25s, reconnection hint of 3s.
 - **Closed-Loop Cycle**: The `runClosedLoopCycle()` function (called on a timer and via API) runs: anomaly scan → auto-reroute remediation → pump flow simulation → pre-movement SMS dispatch → compliance scan — fully autonomous.
 - **Event Bus**: Domain events (`gate:entry`, `anomaly:detected`, `reroute:applied`, etc.) are emitted via `src/services/eventBus.js` and consumed by both the SSE stream and notification services.

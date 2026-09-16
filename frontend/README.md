@@ -52,7 +52,7 @@ frontend/
     ├── hooks/
     │   ├── useYardStream.js    # SSE subscription to backend events
     │   ├── useYardData.js      # Polling hooks (metrics, ESG, snapshot, etc.)
-    │   └── useDemoAuth.js      # Demo JWT login + persistence
+    │   └── useDemoAuth.js      # Sandbox JWT login + persistence
     ├── services/
     │   ├── api.js              # Axios instance + role-slot token management + yard API
     │   └── speech.js           # Web Speech API TTS (voice guidance)
@@ -125,10 +125,10 @@ npm run dev
 
 The dev server starts on `http://localhost:5173`. The `/api` proxy forwards to the backend (configurable via `VITE_API_PROXY` env variable, default `http://localhost:8080`).
 
-### Demo Flow
+### Walkthrough
 1. Open the app — the Executive Dashboard auto-authenticates with the `executive` role via `/auth/demo`.
 2. Navigate to **Gate Kiosk**, enter a manifest plate (e.g., `KKH 135E`), and capture to issue a digital token.
-3. Simulate checkpoints (Gate → Weighbridge) to trigger AI bay assignment.
+3. Simulate checkpoints (Gate → Weighbridge) to trigger autonomous bay allocation.
 4. Watch real-time events flow across all pages via the SSE stream.
 
 ---

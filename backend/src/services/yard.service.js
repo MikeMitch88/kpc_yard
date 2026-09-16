@@ -239,7 +239,7 @@ function effectiveQueueWait(bay) {
 }
 
 /**
- * AI Bay Matching — assigns the optimal gantry bay for a tanker.
+ * Autonomous Bay Allocation — assigns the optimal gantry bay for a tanker.
  * Scores candidate bays by: product compatibility, forecast wait time,
  * loading duration, rate capacity and bay health.
  */

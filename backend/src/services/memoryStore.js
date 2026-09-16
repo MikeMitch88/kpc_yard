@@ -3,7 +3,7 @@
  *
  * Exposes a `ref(path)` factory with an API subset compatible with the
  * Firebase Admin RTDB refs used across the services, so the backend runs in a
- * local demo/test environment without provisioning real credentials. When real
+ * local sandbox/test environment without provisioning real credentials. When real
  * Firebase credentials are supplied (see config/firebase.js) this module is
  * bypassed entirely.
  */

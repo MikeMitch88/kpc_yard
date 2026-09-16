@@ -90,10 +90,15 @@ export default function ExecutiveDashboard() {
       {/* Glassmorphism hero band */}
       <div className="hero-sheen glass glass-outline flex flex-wrap items-center justify-between gap-4 p-6">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-300">KPC · MBA Depot</p>
-          <h1 className="mt-1 text-3xl font-bold">Executive Control Plane</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-300">Njiasmart · MBA Depot</p>
+            <span className="rounded-full border border-orange-400/40 bg-orange-500/10 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-orange-300">
+              Okoa Muda
+            </span>
+          </div>
+          <h1 className="mt-1 text-3xl font-bold">Yard & Queue Control Plane</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Strategic yard telemetry · autonomous dispatch · ROI + SLA watchtower
+            Automated logistics telemetry · autonomous dispatch · ROI + SLA watchtower
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -123,6 +128,15 @@ export default function ExecutiveDashboard() {
       {kpis && (
         <>
           {/* ROI KPI band — animated counters */}
+          <div className="glass glass-outline flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+              <Satellite className="h-4 w-4 text-orange-400" /> Executive summary · Automated Control Plane
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">
+              Njiasmart <span className="text-orange-400">·</span> Okoa Muda <span className="mx-1 text-slate-700">|</span>
+              <span className="text-emerald-300"> Live Telemetry</span>
+            </p>
+          </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <KpiCard
               accent="emerald"
@@ -277,10 +291,10 @@ export default function ExecutiveDashboard() {
         <div className="text-xs text-slate-400">
           <p className="font-semibold text-slate-200">Autonomous control loop</p>
           <p className="mt-1">
-            Every gate capture is verified against the batch manifest; the AI bay-matching engine assigns the optimal gantry by
-            pump rate and queue forecast. Anomalies (dead pumps, queue overflow, load hangs) trigger{" "}
-            <b className="text-amber-300">closed-loop reroutes</b>, pre-movement SMS staging, and PagerDuty/Slack escalation — no
-            human dispatcher required.
+            Every gate capture is verified against the batch manifest; the Autonomous Bay Allocation Engine assigns the optimal
+            gantry by pump rate and queue forecast. Anomalies (dead pumps, queue overflow, load hangs) trigger{" "}
+            <b className="text-amber-300">closed-loop re-sequencing</b>, pre-movement SMS staging, and PagerDuty/Slack escalation —
+            no human dispatcher required.
           </p>
         </div>
       </div>

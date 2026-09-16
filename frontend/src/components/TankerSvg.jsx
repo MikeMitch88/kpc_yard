@@ -1,7 +1,7 @@
 export default function TankerSvg({ gradientId = "tank", wheels = true, className, style }) {
   const wheelCls = wheels ? "anpr-wheel" : undefined;
   return (
-    <svg viewBox="0 0 210 62" className={className} style={style} role="img" aria-label="KPC fuel tanker">
+    <svg viewBox="0 0 210 62" className={className} style={style} role="img" aria-label="Njiasmart fuel tanker">
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#0D7E43" />
@@ -22,7 +22,7 @@ export default function TankerSvg({ gradientId = "tank", wheels = true, classNam
         fontFamily="ui-monospace, SFMono-Regular, monospace"
         letterSpacing="2"
       >
-        KPC
+        NJS
       </text>
       <text
         x="64"
@@ -34,7 +34,7 @@ export default function TankerSvg({ gradientId = "tank", wheels = true, classNam
         fontFamily="ui-monospace, SFMono-Regular, monospace"
         letterSpacing="1"
       >
-        KENYA PIPELINE CO.
+        NJIASMART ENERGY
       </text>
       <rect x="98" y="20" width="10" height="10" fill="#F59E0B" stroke="#111111" strokeWidth="1.2" />
       <rect x="5" y="23" width="3" height="6" fill="#DC2626" />

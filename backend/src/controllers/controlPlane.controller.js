@@ -182,7 +182,7 @@ export async function resolveCompliance(req, res, next) {
   }
 }
 
-/** Integration health — which external channels are wired for the demo. */
+/** Integration health — which external channels are wired in the live environment. */
 export async function integrations(req, res, next) {
   try {
     return res.json({

@@ -21,7 +21,7 @@ export function authenticate(req, _res, next) {
   }
 }
 
-/** Issue a signed demo JWT — used for the hackathon demo/seed gate. */
+/** Issue a signed enterprise JWT — used by the sandbox token factory and seed gate. */
 export function issueToken({ sub, role, name, truckId = null }) {
   return jwt.sign({ sub, role, name, truckId }, env.jwt.secret, {
     expiresIn: env.jwt.expiresIn,

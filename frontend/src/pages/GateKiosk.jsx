@@ -182,7 +182,7 @@ export default function GateKiosk() {
         speak(`Bay ${assignment.bayId} assigned. Estimated wait ${assignment.etaMinutes} minutes. Please proceed to gantry ${assignment.bayId.replace(/^G/i, "")}.`);
         pushAlert({
           tone: "success",
-          title: "AI Bay Assigned",
+          title: "Bay Auto-Assigned",
           message: `${entry.truck.regNo} → ${assignment.bayId} (ETA ~${assignment.etaMinutes} min)`,
         });
       } else {
@@ -213,7 +213,7 @@ export default function GateKiosk() {
         speak(`SMS queue pass dispatched to ${res.to}.`);
         pushAlert({
           tone: res.emulated ? "info" : "success",
-          title: res.emulated ? "SMS emulated (demo)" : "SMS dispatched — TALK-SASA",
+          title: res.emulated ? "SMS queued (gateway offline)" : "SMS dispatched — TALK-SASA",
           message: `Token ${entry.token} → ${res.to}`,
         });
       } else {
@@ -426,7 +426,7 @@ export default function GateKiosk() {
 
           {!entry ? (
             <p className="py-8 text-center text-sm text-slate-500">
-              Capture a vehicle to issue its KPC digital token.
+              Capture a vehicle to issue its digital token.
             </p>
           ) : (
             <>
@@ -467,7 +467,7 @@ export default function GateKiosk() {
                   RFID Gate
                 </button>
                 <button onClick={() => runCheckpoint("WEIGHBRIDGE")} disabled={busy} className="btn-primary text-xs">
-                  Weighbridge → AI Bay Match
+                  Weighbridge → Auto Bay Allocate
                 </button>
               </div>
 
@@ -504,7 +504,7 @@ export default function GateKiosk() {
                 {smsResult && (
                   <p className={`mt-2 text-xs ${smsResult.ok ? "text-emerald-300" : "text-red-300"}`}>
                     {smsResult.ok
-                      ? `✓ ${smsResult.emulated ? "Emulated (demo mode)" : "Sent via TALK-SASA"} → ${smsResult.to}`
+                      ? `✓ ${smsResult.emulated ? "Queued — SMS gateway offline" : "Sent via TALK-SASA"} → ${smsResult.to}`
                       : `✗ ${smsResult.reason}`}
                   </p>
                 )}
@@ -512,7 +512,7 @@ export default function GateKiosk() {
 
               {scanResult?.allocation && (
                 <div className="mt-3 rounded-lg border border-amber-400/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-                  <p className="font-semibold">AI Bay Matching Engine</p>
+                  <p className="font-semibold">Autonomous Bay Allocation Engine</p>
                   <p className="mt-1">
                     Assigned <b>{scanResult.allocation.assignment.bayId}</b> — wait ~
                     {scanResult.allocation.assignment.etaMinutes} min, load ~
@@ -539,7 +539,7 @@ export default function GateKiosk() {
           {[
             { label: "Gate Entry", done: Boolean(entry?.token) },
             { label: "Weighbridge RFID", done: Boolean(scanResult?.checkpoint?.checkpoint === "WEIGHBRIDGE") },
-            { label: "AI Bay Assigned", done: Boolean(scanResult?.allocation) },
+            { label: "Bay Auto-Assigned", done: Boolean(scanResult?.allocation) },
             { label: "Loading Gantry", done: false },
           ].map((s, i) => (
             <div

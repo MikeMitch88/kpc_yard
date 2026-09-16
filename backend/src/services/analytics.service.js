@@ -6,7 +6,7 @@ const PATH_STATS = "yard/stats";
 
 /**
  * Baseline yard performance in passive/legacy mode (used as the control group
- * for ROI telemetry). Configured so the demo produces realistic "period-over-
+ * for ROI telemetry). Configured so the sandbox produces realistic "period-over-
  * period improvement" numbers.
  */
 export const BASELINE = {

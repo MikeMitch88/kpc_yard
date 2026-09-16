@@ -1,6 +1,6 @@
-# KPC Yard Control Plane
+# Njiasmart — Yard & Queue Control Plane
 
-**KPC Depot Autonomous Yard & Queue Control Plane** — a full-stack application for the Kenya Pipeline Company MBA depot that autonomously manages tanker truck flow through the yard: gate entry, weighbridge verification, AI bay matching, gantry loading, and exit — with zero human dispatcher required.
+**Njiasmart ("Okoa Muda" — Save Time)** — an enterprise Automated Yard & Queue Control Plane for fuel logistics operators. It autonomously manages tanker truck flow through the depot: gate entry, weighbridge verification, Autonomous Bay Allocation, gantry loading, and exit — with zero human dispatcher required.
 
 ---
 
@@ -29,9 +29,9 @@ Gate Entry → Weighbridge → Staging Queue → Gantry Loading → Exit
 ```
 
 Key autonomous features:
-- **ANPR Gate Capture** — plates validated against batch manifest; digital KPC tokens issued
-- **AI Bay Matching** — optimal gantry assigned by pump rate, queue forecast, product match, and bay health
-- **Closed-Loop Auto-Reroute** — anomalies (dead gantries, queue overflow, load hangs) trigger automatic vehicle re-sequencing
+- **ANPR Gate Capture** — plates validated against batch manifest; digital yard tokens issued
+- **Autonomous Bay Allocation** — optimal gantry assigned by pump rate, queue forecast, product match, and bay health
+- **Closed-Loop Re-sequencing** — anomalies (dead gantries, queue overflow, load hangs) trigger automatic vehicle re-sequencing
 - **Pre-Movement SMS** — drivers staged 5 minutes before bay clearance, zero wasted demurrage time
 - **Real-Time Dashboard** — SSE stream powers live KPIs, ESG scorecards, compliance panels, and depot maps
 - **Alerting** — PagerDuty, Slack, and TALK-SASA SMS escalation paths
@@ -83,7 +83,7 @@ npm install
 
 ```bash
 cp .env.example .env
-# Edit .env as needed (defaults work for demo mode)
+# Edit .env as needed (defaults work for sandbox mode)
 ```
 
 ### 3. Start both services
@@ -115,7 +115,7 @@ npm test                # Backend tests (Jest)
 | Driver Mobile        | `/driver`     | driver                   | Token tracker, checkpoint progress, push alerts    |
 | Admin Ops            | `/admin`      | depot-manager            | Anomaly triage, manual allocation, bay overrides   |
 
-Each page auto-authenticates with a demo JWT for its role on mount.
+Each page auto-authenticates with a sandbox JWT for its role on mount.
 
 ---
 
@@ -124,7 +124,7 @@ Each page auto-authenticates with a demo JWT for its role on mount.
 - **Location**: `backend/`
 - **Framework**: Express 4 + Node.js >= 20
 - **Auth**: JWT with 5 roles (gate-officer, driver, depot-manager, executive, system)
-- **Database**: Firebase Realtime DB (production) or in-memory emulator (dev/demo)
+- **Database**: Firebase Realtime DB (production) or in-memory emulator (sandbox/dev)
 - **API**: REST endpoints under `/api` + SSE at `/api/stream`
 - **Key services**: yard service (truck lifecycle), auto-reroute (anomaly detection + closed-loop), compliance (speed/dwell), ESG scorecard, analytics, notification (PagerDuty/Slack/SMS)
 
@@ -254,13 +254,13 @@ kpc_yard/
 
 ---
 
-## Demo
+## Sandbox / Live Telemetry
 
-The application runs fully in demo mode out of the box:
+The application runs fully in sandbox mode out of the box (or with live telemetry when the WhatsApp/SMS and Firebase connectors are configured):
 
 1. **Start**: `npm run dev`
 2. **Landing**: Executive Dashboard auto-logs in as executive — see KPIs, charts, ESG, compliance
-3. **Gate Kiosk**: Enter `KKH 135E` (or any manifest plate) → capture → token issued → AI bay assigned
+3. **Gate Kiosk**: Enter `KKH 135E` (or any manifest plate) → capture → token issued → Autonomous Bay Allocation
 4. **Depot Map**: Watch the truck move through gate → weighbridge → staging → gantry in real time
 5. **Driver Mobile**: Track the truck's token status, receive push alerts, scan exit
 6. **Admin Ops**: Trigger closed-loop cycles, resolve anomalies, override bay health

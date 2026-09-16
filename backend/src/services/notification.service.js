@@ -81,7 +81,7 @@ export async function sendSms(phone, message) {
   if (!recipient) return { ok: false, reason: "invalid-phone" };
 
   if (!apiKey || !endpoint || env.nodeEnv === "test") {
-    // Demo/emulator mode (and always during test runs): log instead of sending.
+    // Sandbox/emulator mode (and always during test runs): log instead of sending.
     console.log(`[sms:emulated] → ${recipient}: ${message}`);
     return { ok: true, emulated: true, to: recipient };
   }

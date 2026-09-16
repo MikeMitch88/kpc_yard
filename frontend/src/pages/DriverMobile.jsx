@@ -119,7 +119,7 @@ export default function DriverMobile() {
           value={token}
           onChange={(e) => setToken(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && track()}
-          placeholder="KPC token…"
+          placeholder="Njiasmart token…"
           className="input font-mono"
         />
         <button onClick={track} className="btn-primary shrink-0">

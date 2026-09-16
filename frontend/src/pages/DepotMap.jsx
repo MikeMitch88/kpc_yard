@@ -110,7 +110,7 @@ export default function DepotMap() {
           </div>
           <div className="rounded-lg border border-white/10 bg-black/30 p-3 text-center">
             <StatusBadge status="AT_WEIGHBRIDGE" />
-            <p className="mt-2 text-xs text-slate-400">Weighbridge · RFID + AI bay match</p>
+            <p className="mt-2 text-xs text-slate-400">Weighbridge · RFID + autonomous bay allocation</p>
             <div className="mt-2 flex flex-wrap justify-center gap-1">
               {activeList
                 .filter((t) => t.status === "AT_WEIGHBRIDGE")
