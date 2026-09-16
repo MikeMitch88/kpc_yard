@@ -37,6 +37,13 @@ const MANIFEST_PLATES = [
   "KKH 135E",
   "KMJ 864F",
   "KNK 753G",
+  "KDD 001D",
+  "KLM 246A",
+  "KNP 357B",
+  "KQR 468C",
+  "KST 579D",
+  "KUV 680E",
+  "KVW 791F",
 ];
 
 const rnd = (chars) => chars[Math.floor(Math.random() * chars.length)];
@@ -455,7 +462,7 @@ export default function GateKiosk() {
                   Njiasmart Voice Guidance · Live Audio Broadcast
                 </p>
                 <p className="mt-1 font-medium text-slate-200 text-sm italic">
-                  "{spokenMessage}"
+                  &ldquo;{spokenMessage}&rdquo;
                 </p>
               </div>
             </div>

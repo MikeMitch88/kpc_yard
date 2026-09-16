@@ -27,6 +27,12 @@ export const SEED_MANIFEST = [
   { regNo: "KDX 110X", driver: "Kipchoge Keino", driverPhone: "+254711000011", product: PRODUCTS.DIESEL, capacityLiters: 30_000, tareKg: 15_000 },
   { regNo: "KDX 100X", driver: "Kipchoge Keino", driverPhone: "+254711000012", product: PRODUCTS.DIESEL, capacityLiters: 30_000, tareKg: 15_000 },
   { regNo: "KDD 001D", driver: "Karanja Kibaki", driverPhone: "+254711000099", product: PRODUCTS.DIESEL, capacityLiters: 45_000, tareKg: 20_500, stagingYard: "Yard 2" },
+  { regNo: "KLM 246A", driver: "Wanjiru Kamau", driverPhone: "+254711000013", product: PRODUCTS.DIESEL, capacityLiters: 35_000, tareKg: 17_000 },
+  { regNo: "KNP 357B", driver: "Ochieng Odhiambo", driverPhone: "+254711000014", product: PRODUCTS.PETROL, capacityLiters: 28_000, tareKg: 14_500 },
+  { regNo: "KQR 468C", driver: "Amina Hassan", driverPhone: "+254711000015", product: PRODUCTS.KEROSENE, capacityLiters: 32_000, tareKg: 16_000 },
+  { regNo: "KST 579D", driver: "Brian Mutua", driverPhone: "+254711000016", product: PRODUCTS.JET_A1, capacityLiters: 48_000, tareKg: 21_000 },
+  { regNo: "KUV 680E", driver: "Nancy Wairimu", driverPhone: "+254711000017", product: PRODUCTS.DIESEL, capacityLiters: 40_000, tareKg: 18_500 },
+  { regNo: "KVW 791F", driver: "Hassan Ali", driverPhone: "+254711000018", product: PRODUCTS.ADBLUE, capacityLiters: 22_000, tareKg: 13_000 },
 ];
 
 /**
