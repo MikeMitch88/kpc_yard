@@ -123,6 +123,7 @@ export default function GateKiosk() {
 
   async function capture() {
     if (!regNo.trim()) return;
+    if (surgeSimulated) resolveSurge();
     const target = regNo.trim().toUpperCase();
     setBusy(true);
     setRecording(true);
@@ -237,8 +238,21 @@ export default function GateKiosk() {
     });
   }
 
+  function resolveSurge() {
+    setSurgeSimulated(false);
+    setSurgeBanner(null);
+    pushAlert({
+      tone: "success",
+      title: "Surge Resolved",
+      message: "Traffic normalized. Queue cleared.",
+    });
+  }
+
   function simulateSurge() {
-    if (surgeSimulated) return;
+    if (surgeSimulated) {
+      resolveSurge();
+      return;
+    }
     setSurgeSimulated(true);
     setSurgeBanner({
       active: true,
@@ -252,15 +266,6 @@ export default function GateKiosk() {
       message: "12 tankers staged · Holding Yard congestion high · auto-rerouting engaged",
     });
     speak("Warning: fleet surge detected. Twelve tankers staged at the main gate. Holding yard congestion is critical.");
-    setTimeout(() => {
-      setSurgeSimulated(false);
-      setSurgeBanner(null);
-      pushAlert({
-        tone: "success",
-        title: "Surge Resolved",
-        message: "Traffic normalized. Queue cleared.",
-      });
-    }, 6000);
   }
 
   const filtered = useMemo(
@@ -281,16 +286,16 @@ export default function GateKiosk() {
           <StatusBadge pulse status={auth.ready ? "ACTIVE" : "WAITING"} />
           <button
             onClick={simulateSurge}
-            disabled={busy || surgeSimulated}
+            disabled={busy}
             className={`btn px-3 py-1.5 ${
               surgeSimulated
-                ? "border border-amber-400/60 bg-amber-500/20 text-amber-300 animate-pulse"
+                ? "border border-red-400/70 bg-red-500/25 text-red-200 animate-pulse"
                 : "btn-ghost border border-red-400/40 text-red-300 hover:bg-red-500/10"
             }`}
-            title="Simulate a fleet surge to test yard congestion handling"
+            title="Toggle a fleet surge to stage 12 tankers and raise yard congestion alerts"
           >
             <AlertTriangle className="h-4 w-4" />
-            {surgeSimulated ? "SURGE ACTIVE" : "Simulate Fleet Surge"}
+            {surgeSimulated ? "End Fleet Surge" : "Simulate Fleet Surge"}
           </button>
           <button onClick={toggleVoice} title="Toggle voice guidance" className="btn-ghost px-2 py-1.5">
             {voiceOn ? <Volume2 className="h-4 w-4 text-emerald-300" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
