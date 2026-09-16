@@ -6,7 +6,6 @@ import {
   Map as MapIcon,
   Settings2,
 } from "lucide-react";
-import BrandMark from "./BrandMark.jsx";
 
 const NAV = [
   { to: "/", label: "Executive Dashboard", icon: LayoutDashboard, end: true },
@@ -20,15 +19,12 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-40 flex w-16 flex-col items-center gap-2 border-r border-white/10 bg-black/40 py-4 md:w-60 md:items-stretch md:px-4">
-        <div className="mb-4 flex items-center gap-2.5 px-1">
-          <div className="rounded-xl bg-gradient-to-br from-[#0B6B3A] to-[#072C1B] p-1.5 ring-1 ring-orange-400/30">
-            <BrandMark showWordmark={false} size={30} />
-          </div>
-          <div className="hidden md:block">
-            <p className="text-sm font-bold uppercase tracking-wide text-white">Njiasmart</p>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-orange-400">Okoa Muda</p>
-            <p className="text-[9px] text-slate-500">MBA Depot · Kenya</p>
-          </div>
+        <div className="mb-4 flex items-center justify-center px-1 md:justify-start">
+          <img
+            src="/images/logo_no_white_corners.png"
+            alt="Njiasmart Logo"
+            className="h-10 w-auto object-contain md:h-12"
+          />
         </div>
         {NAV.map(({ to, label, icon: Icon, end }) => (
           <NavLink
