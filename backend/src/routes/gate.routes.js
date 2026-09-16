@@ -9,7 +9,7 @@ router.use(authenticate);
 
 /**
  * POST /gate/entry
- * Simulated ANPR camera capture → validates manifest → issues KPC digital token.
+ * Simulated ANPR camera capture → validates manifest → issues Njiasmart digital token.
  */
 router.post("/entry", authorize(ROLES.GATE_OFFICER, ROLES.SYSTEM, ROLES.DEPOT_MANAGER, ROLES.EXECUTIVE), anprEntry);
 

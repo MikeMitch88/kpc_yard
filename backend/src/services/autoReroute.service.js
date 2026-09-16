@@ -2,7 +2,7 @@ import { ref, isEmulator } from "../config/firebase.js";
 import { notifyEvent } from "./eventBus.js";
 import { ApiError } from "../middleware/errorHandler.js";
 import { getLiveBays, getLiveTrucks, loadingDurationMinutes, now, hoursBetween } from "./yard.service.js";
-import { sendAlert, notifyDriver } from "./notification.service.js";
+import { sendAlert, notifyDriver, buildStageSms } from "./notification.service.js";
 import { scanCompliance } from "./compliance.service.js";
 import env from "../config/env.js";
 
@@ -406,13 +406,17 @@ export async function dispatchPreMovementAlerts(bays, trucks) {
 
     const nextTruck = trucks[nextId] ?? null;
 
-    const message = `Gantry ${bayId} nearly clear. ${truck.regNo} load at ${Math.round(progressPct)}% (~${Math.max(1, Math.ceil(remainingMin))} min left). Prepare to move forward to the gantry.`;
+    const message = buildStageSms("pre-movement", {
+      token: next.token ?? nextTruck?.token,
+      regNo: next.regNo ?? nextTruck?.regNo,
+      bayId,
+    });
     const smsPromise = notifyDriver({
       phone: nextTruck?.driverPhone,
       token: next.token ?? nextTruck?.token,
       regNo: next.regNo ?? nextTruck?.regNo,
       message,
-      heading: "KPC Yard · Pre-Movement",
+      plain: true,
     }).catch(() => ({ ok: false }));
 
     const record = {

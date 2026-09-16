@@ -1,6 +1,5 @@
 import { processGateEntry, listManifest, getLiveTrucks } from "../services/yard.service.js";
-import { notifyDriver } from "../services/notification.service.js";
-import { pushPayload } from "../services/notification.service.js";
+import { notifyDriver, pushPayload, buildStageSms } from "../services/notification.service.js";
 
 export async function anprEntry(req, res, next) {
   try {
@@ -12,18 +11,25 @@ export async function anprEntry(req, res, next) {
       operatorId: req.user.id,
     });
 
-    // Push a welcome mobile notification to the driver
+    // Push a welcome mobile notification + stage-1 SMS (gate entry token) to the driver
     if (req.body.driverPhone) {
       const push = pushPayload({
         token: result.token,
         title: result.manifestVerified ? "Token issued ✅" : "Token issued — verification pending",
         body: result.message,
       });
+      const smsMessage = buildStageSms("gate-entry", {
+        token: result.token,
+        regNo: result.truck.regNo,
+        product: result.truck.product,
+        volumeLiters: result.truck.capacityLiters,
+      });
       await notifyDriver({
         phone: req.body.driverPhone,
         token: result.token,
         regNo: result.truck.regNo,
-        message: result.message,
+        message: smsMessage,
+        plain: true,
       });
       result.pushNotification = push;
     }
@@ -66,13 +72,18 @@ export async function dispatchSms(req, res, next) {
       return res.status(400).json({ success: false, error: { message: "No recipient phone — send a phone or register driverPhone on the manifest" } });
     }
 
-    const message = `KPC digital queue pass issued. Present ${truck.token} at the gate & weighbridge. Product ${truck.product ?? "—"}, ${(truck.capacityLiters ?? 0).toLocaleString()} L. Gate staff will direct you to your bay.`;
+    const message = buildStageSms("gate-entry", {
+      token: truck.token,
+      regNo: truck.regNo,
+      product: truck.product,
+      volumeLiters: truck.capacityLiters,
+    });
     const sms = await notifyDriver({
       phone: target,
       token: truck.token,
       regNo: truck.regNo,
       message,
-      heading: "KPC Yard Control Plane",
+      plain: true,
     });
 
     return res.json({

@@ -2,6 +2,7 @@ import { ref } from "../config/firebase.js";
 import { generateKey } from "./memoryStore.js";
 import { ApiError } from "../middleware/errorHandler.js";
 import { notifyEvent } from "./eventBus.js";
+import { notifyDriver, buildStageSms } from "./notification.service.js";
 import env from "../config/env.js";
 
 export const PRODUCTS = {
@@ -316,6 +317,22 @@ export async function matchBay(vehicle) {
     score: Number(best.score.toFixed(2)),
     timestamp: now(),
   });
+
+  // Stage-2 SMS: notify the driver of the bay allocation immediately.
+  if (vehicle.driverPhone) {
+    const smsMessage = buildStageSms("bay-assigned", {
+      token: vehicle.token,
+      regNo: vehicle.regNo,
+      bayId,
+    });
+    await notifyDriver({
+      phone: vehicle.driverPhone,
+      token: vehicle.token,
+      regNo: vehicle.regNo,
+      message: smsMessage,
+      plain: true,
+    });
+  }
 
   return assignment;
 }

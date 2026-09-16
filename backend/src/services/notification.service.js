@@ -16,6 +16,35 @@ export function normalizePhone(phone) {
 }
 
 /**
+ * Stage-aware SMS templates. Each message is your-driver-facing, fully branded
+ * and self-contained (token + plate included) so no header/footer is appended.
+ */
+const SMS_STAGE_TEMPLATES = {
+  "gate-entry":
+    "Njiasmart | Digital queue pass issued. Token: {token} | Reg: {reg}. Present at Main Gate & Weighbridge. Product: {product}, {volume}L.",
+  "bay-assigned":
+    "Njiasmart | Bay Assigned! Token: {token} | Reg: {reg}. You have been allocated Loading Bay {bayId}. Proceed from Holding Yard immediately.",
+  "pre-movement":
+    "Njiasmart | Pre-Movement Alert! Token: {token} | Reg: {reg}. Bay {bayId} is completing cycle. Start engine and prepare to move from Holding Yard.",
+};
+
+/**
+ * Build a stage-specific, context-aware SMS payload.
+ * stage ∈ { "gate-entry", "bay-assigned", "pre-movement" }
+ */
+export function buildStageSms(stage, data = {}) {
+  const template = SMS_STAGE_TEMPLATES[stage];
+  if (!template) throw new Error(`Unknown SMS stage template: ${stage}`);
+  const liters = Number(data.volume ?? data.volumeLiters ?? data.capacityLiters ?? 0);
+  return template
+    .replace("{token}", data.token ?? "—")
+    .replace("{reg}", data.regNo ?? data.reg ?? "—")
+    .replace("{bayId}", data.bayId ?? "—")
+    .replace("{product}", data.product ?? "—")
+    .replace("{volume}", liters > 0 ? liters.toLocaleString() : "—");
+}
+
+/**
  * Send an operational alert to PagerDuty (Events API v2) and/or Slack.
  * Failures are swallowed and logged — alerting must never break yard logic.
  */
@@ -115,8 +144,14 @@ export async function sendSms(phone, message) {
   }
 }
 
-export async function notifyDriver({ phone, token, regNo, message, heading = "KPC Yard Control Plane" }) {
-  const text = `${heading}\n${message}\nToken: ${token}${regNo ? ` | Reg ${regNo}` : ""}`;
+/**
+ * Send a driver notification over TALK-SASA.
+ * When `plain` is true the message is sent verbatim (for stage templates that
+ * are already branded and self-contained); otherwise a heading + token/reg
+ * footer is appended for one-off operational messages.
+ */
+export async function notifyDriver({ phone, token, regNo, message, heading = "Njiasmart Control Plane", plain = false }) {
+  const text = plain ? message : `${heading}\n${message}\nToken: ${token}${regNo ? ` | Reg ${regNo}` : ""}`;
   return sendSms(phone, text);
 }
 
