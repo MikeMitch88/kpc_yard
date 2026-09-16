@@ -19,11 +19,11 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-40 flex w-16 flex-col items-center gap-2 border-r border-white/10 bg-black/40 py-4 md:w-60 md:items-stretch md:px-4">
-        <div className="mb-4 flex items-center justify-center px-1 md:justify-start">
+        <div className="mb-6 flex items-center justify-center px-1 py-1 md:justify-start">
           <img
             src="/images/logo_no_white_corners.png"
             alt="Njiasmart Logo"
-            className="h-10 w-auto object-contain md:h-12"
+            className="h-12 w-auto max-w-full object-contain md:h-14"
           />
         </div>
         {NAV.map(({ to, label, icon: Icon, end }) => (

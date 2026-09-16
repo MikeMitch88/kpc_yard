@@ -7,11 +7,11 @@
 }
 
 body {
-  @apply bg-kpc-dark text-slate-100 antialiased;
+  @apply bg-slate-950 text-slate-100 antialiased;
 }
 
 .card {
-  @apply rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur;
+  @apply rounded-xl border border-white/10 bg-slate-900 p-4;
 }
 
 .chip {
@@ -27,7 +27,7 @@ body {
 }
 
 .input {
-  @apply w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-kpc-green focus:outline-none;
+  @apply w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-amber-400 focus:outline-none;
 }
 
 ::-webkit-scrollbar {
@@ -44,8 +44,8 @@ body {
   overflow: hidden;
   border-radius: 0.625rem;
   background:
-    radial-gradient(120% 90% at 50% 120%, rgba(27, 68, 44, 0.9) 0%, rgba(0, 0, 0, 0) 45%),
-    linear-gradient(#030a06 0%, #0b2317 55%, #123525 78%, #0c2a1b 100%);
+    radial-gradient(120% 90% at 50% 120%, rgba(30, 41, 59, 0.95) 0%, rgba(0, 0, 0, 0) 45%),
+    linear-gradient(#020617 0%, #0f172a 55%, #1e293b 78%, #0b1220 100%);
 }
 .anpr-scene::before {
   content: "";
@@ -64,7 +64,7 @@ body {
   right: 0;
   bottom: 0;
   height: 34%;
-  background: linear-gradient(#0d2114, #0a1c11);
+  background: linear-gradient(#1a2536, #141c29);
 }
 .anpr-road::after {
   content: "";
@@ -73,7 +73,7 @@ body {
   right: 0;
   top: 40%;
   height: 2px;
-  background-image: linear-gradient(90deg, rgba(63, 111, 84, 0.9) 0 34px, transparent 34px 52px);
+  background-image: linear-gradient(90deg, rgba(148, 163, 184, 0.9) 0 34px, transparent 34px 52px);
   background-size: 52px 2px;
   animation: anpr-flow 0.9s linear infinite;
 }
@@ -172,7 +172,7 @@ body {
 
 /* ---- Glassmorphism executive surfaces ---- */
 .glass {
-  @apply relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl;
+  @apply relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 backdrop-blur-xl;
 }
 .glass::before {
   content: "";
