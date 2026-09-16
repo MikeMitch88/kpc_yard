@@ -9,10 +9,12 @@ import {
   XCircle,
   Volume2,
   VolumeX,
+  AlertTriangle,
 } from "lucide-react";
 import { useDemoAuth } from "../hooks/useDemoAuth.js";
 import { yardApi } from "../services/api.js";
 import { speak } from "../services/speech.js";
+import DepotCameraGrid from "../components/DepotCameraGrid.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { pushAlert } from "../components/AlertCenter.jsx";
 
@@ -108,6 +110,8 @@ export default function GateKiosk() {
   const [readInfo, setReadInfo] = useState(null);
   const [phase, setPhase] = useState("idle");
   const [now, setNow] = useState(() => new Date());
+  const [surgeSimulated, setSurgeSimulated] = useState(false);
+  const [surgeBanner, setSurgeBanner] = useState(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -232,6 +236,32 @@ export default function GateKiosk() {
     });
   }
 
+  function simulateSurge() {
+    if (surgeSimulated) return;
+    setSurgeSimulated(true);
+    setSurgeBanner({
+      active: true,
+      at: new Date(),
+      queued: 12,
+      message: "12 tankers staged at Main Gate · Holding Yard congestion critical · auto-reroute engaged",
+    });
+    pushAlert({
+      tone: "error",
+      title: "Surge Simulation Active",
+      message: "12 tankers staged · Holding Yard congestion high · auto-rerouting engaged",
+    });
+    speak("Warning: fleet surge detected. Twelve tankers staged at the main gate. Holding yard congestion is critical.");
+    setTimeout(() => {
+      setSurgeSimulated(false);
+      setSurgeBanner(null);
+      pushAlert({
+        tone: "success",
+        title: "Surge Resolved",
+        message: "Traffic normalized. Queue cleared.",
+      });
+    }, 6000);
+  }
+
   const filtered = useMemo(
     () => MANIFEST_PLATES.filter((p) => p.toLowerCase().includes(regNo.toLowerCase())),
     [regNo],
@@ -248,11 +278,37 @@ export default function GateKiosk() {
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge pulse status={auth.ready ? "ACTIVE" : "WAITING"} />
+          <button
+            onClick={simulateSurge}
+            disabled={busy || surgeSimulated}
+            className={`btn px-3 py-1.5 ${
+              surgeSimulated
+                ? "border border-amber-400/60 bg-amber-500/20 text-amber-300 animate-pulse"
+                : "btn-ghost border border-red-400/40 text-red-300 hover:bg-red-500/10"
+            }`}
+            title="Simulate a fleet surge to test yard congestion handling"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            {surgeSimulated ? "SURGE ACTIVE" : "Simulate Fleet Surge"}
+          </button>
           <button onClick={toggleVoice} title="Toggle voice guidance" className="btn-ghost px-2 py-1.5">
             {voiceOn ? <Volume2 className="h-4 w-4 text-emerald-300" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
           </button>
         </div>
       </div>
+
+      {surgeBanner?.active && (
+        <div className="flex items-center gap-3 rounded-lg border border-red-400/60 bg-red-500/10 px-4 py-3 animate-pulse">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-red-300" />
+          <div className="flex-1">
+            <p className="text-sm font-bold text-red-100">FLEET SURGE — HOLDING YARD CONGESTION CRITICAL</p>
+            <p className="text-xs text-red-200/80">{surgeBanner.message}</p>
+          </div>
+          <span className="font-mono text-xs text-red-200/70">{surgeBanner.queued} tankers staged</span>
+        </div>
+      )}
+
+      <DepotCameraGrid />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Cinematic ANPR camera */}

@@ -13,7 +13,7 @@ services:
     rootDir: backend
     plan: free
     region: oregon
-    dockerCommand: npm start
+    startCommand: npm start
     buildCommand: npm install --include=dev
     healthCheckPath: /api/health
     envVars:
@@ -63,11 +63,11 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./build
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: /api
+        value: https://kpc-yard.onrender.com
