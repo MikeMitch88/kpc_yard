@@ -6,7 +6,6 @@ import {
   Map as MapIcon,
   Settings2,
 } from "lucide-react";
-import BrandMark from "./BrandMark.jsx";
 
 const NAV = [
   { to: "/", label: "Executive Dashboard", icon: LayoutDashboard, end: true },
@@ -21,13 +20,16 @@ export default function Layout() {
     <div className="flex min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-40 flex w-16 flex-col items-center gap-2 border-r border-white/10 bg-black/40 py-4 md:w-60 md:items-stretch md:px-4">
         <div className="mb-4 flex items-center gap-2.5 px-1">
-          <div className="rounded-xl bg-gradient-to-br from-[#0B6B3A] to-[#072C1B] p-1.5 ring-1 ring-orange-400/30">
-            <BrandMark showWordmark={false} size={30} />
-          </div>
+          <img
+            src="https://kpc.co.ke/wp-content/uploads/2019/06/cropped-kpc1.png"
+            alt="KPC"
+            className="h-9 w-9 rounded object-contain"
+            onError={(e) => (e.currentTarget.style.display = "none")}
+          />
           <div className="hidden md:block">
-            <p className="text-sm font-bold uppercase tracking-wide text-white">Njiasmart</p>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-orange-400">Okoa Muda</p>
-            <p className="text-[9px] text-slate-500">MBA Depot · Kenya</p>
+            <p className="text-sm font-bold uppercase tracking-wide text-white">KPC Yard CP</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-emerald-400">MBA Depot</p>
+            <p className="text-[9px] text-slate-500">Kenya Pipeline Co.</p>
           </div>
         </div>
         {NAV.map(({ to, label, icon: Icon, end }) => (
@@ -38,7 +40,7 @@ export default function Layout() {
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${
                 isActive
-                  ? "bg-kpc-green/30 font-semibold text-emerald-300 ring-1 ring-inset ring-orange-400/40"
+                  ? "bg-kpc-green/30 font-semibold text-emerald-300"
                   : "text-slate-400 hover:bg-white/10 hover:text-white"
               }`
             }
@@ -49,9 +51,9 @@ export default function Layout() {
           </NavLink>
         ))}
         <div className="mt-auto px-3 text-[10px] text-slate-600">
-          Njiasmart Enterprise
+          KPC Yard Control Plane
           <br />
-          Yard & Queue Control Plane
+          MBA Depot · Autonomous Yard Control
         </div>
       </aside>
       <main className="ml-16 flex-1 p-4 md:ml-60 md:p-6">
