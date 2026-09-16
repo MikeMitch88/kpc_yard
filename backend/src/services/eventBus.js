@@ -25,6 +25,8 @@ export const STREAM_EVENTS = new Set([
   "preMovement:alert",
   "compliance:violation",
   "truck:exited",
+  "GANTRY_TANKER_EXITED",
+  "gantry:exit",
 ]);
 
 export function notifyEvent(event, payload) {

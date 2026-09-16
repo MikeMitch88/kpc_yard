@@ -91,4 +91,14 @@ describe("REST API Surface", () => {
     expect(res.body.data.to).toMatch(/^\+\d{12}$/);
     expect(res.body.data.ok).toBe(true);
   });
+
+  test("dispatches response team alert on stalled truck / breakdown", async () => {
+    const res = await request(app)
+      .post("/api/control-plane/stalled-truck")
+      .send({ bayId: "G2", reason: "MECHANICAL_BREAKDOWN_3MIN_TIMEOUT" });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.voiceAnnouncement).toContain("Alert for Response Team");
+    expect(res.body.data.bayId).toBe("G2");
+  });
 });

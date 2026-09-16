@@ -1,73 +1,50 @@
-# KPC Yard Control Plane — Render blueprint
-#
-# Services:
-#   - backend: Node.js + Express REST API + SSE realtime stream
-#   - frontend: React + Vite (static) served with SPA fallback
-#
-# Blueprint: https://render.com/docs/blueprint-spec
-
 services:
+  # Backend Web Service (Node.js API)
   - type: web
-    name: kpc-yard-backend
-    runtime: node
-    rootDir: backend
+    name: hackathon-3-kpc-yard
+    env: node
     plan: free
     region: oregon
-    startCommand: npm start
+startCommand: npm start
     buildCommand: npm install --include=dev
+    rootDir: backend
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 8080
+        value: 10000
       - key: CORS_ORIGIN
         value: "*"
       - key: JWT_SECRET
         generateValue: true
-      - key: DEMURRAGE_RATE_PER_HOUR_KES
-        value: "12000"
-      - key: OPTIMAL_TURNAROUND_HOURS
-        value: "4.5"
+      - key: JWT_EXPIRES_IN
+        value: 12h
       - key: EMULATOR_MODE
         value: "true"
-      # Firebase Admin (production yard database) — leave blank to run the
-      # in-memory emulator store.
-      - key: FIREBASE_PROJECT_ID
-        sync: false
-      - key: FIREBASE_CLIENT_EMAIL
-        sync: false
-      - key: FIREBASE_PRIVATE_KEY
-        sync: false
-      - key: FIREBASE_DATABASE_URL
-        sync: false
-      # Alerting integrations
-      - key: PAGERDUTY_WEBHOOK_URL
-        sync: false
-      - key: SLACK_WEBHOOK_URL
-        sync: false
-      # TALK-SASA bulk SMS
-      - key: TALKSASA_API_KEY
-        sync: false
-      - key: TALKSASA_API_TOKEN
-        sync: false
-      - key: TALKSASA_SENDER_ID
-        value: TALK-SASA
-      - key: TALKSASA_BASE_URL
-        value: https://bulksms.talksasa.com/api/v3/
-      - key: TALKSASA_ENDPOINT
-        value: https://bulksms.talksasa.com/api/v3/sms/send
+      - key: SIMULATE_PUMP_FLOW
+        value: "true"
+      - key: SIM_MINUTES_PER_LOOP
+        value: "180"
 
+  # Frontend Static Site (React Vite)
   - type: web
     name: kpc-yard-frontend
-    runtime: static
+    env: static
+    plan: free
+    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://kpc-yard.onrender.com
+        fromService:
+          type: web
+          name: hackathon-3-kpc-yard
+          property: host
+          envVarKey: VITE_API_URL
+          transform: "https://${host}/api"

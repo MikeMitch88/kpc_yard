@@ -474,3 +474,100 @@ export async function listOpenAnomalies() {
   const snap = await ref(PATH).once("value");
   return Object.values(snap.val() ?? {}).filter((a) => a.status !== "RESOLVED" || a.status === null);
 }
+
+/**
+ * Handle a stalled vehicle / mechanical breakdown in the yard.
+ * Dispatches response team alert, marks truck status, frees assigned bay,
+ * and automatically allocates the bay to the next vehicle in queue.
+ */
+export async function handleStalledVehicle(targetTruckId = null, targetBayId = null, reason = "MECHANICAL_BREAKDOWN_3MIN_TIMEOUT") {
+  const [bays, trucks] = await Promise.all([getLiveBays(), getLiveTrucks()]);
+  
+  // Find stalled truck or pick first WAITING/ALLOCATED truck with assigned bay
+  let truck = targetTruckId ? trucks[targetTruckId] : null;
+  if (!truck) {
+    truck = Object.values(trucks).find((t) => t.bayId && (t.status === "WAITING" || t.status === "QUEUED" || t.status === "DISPATCHED"));
+  }
+  
+  if (!truck) {
+    // Pick any active truck to demonstrate stalled response
+    truck = Object.values(trucks)[0] || { id: "T-STALL-01", regNo: "KMJ 864F", bayId: "G2" };
+  }
+
+  const assignedBayId = targetBayId || truck.bayId || "G2";
+  const targetBay = bays[assignedBayId] || {};
+
+  // 1. Mark truck status as MECHANICAL_BREAKDOWN
+  await ref(`yard/trucks/${truck.id}`).update({
+    status: "MECHANICAL_BREAKDOWN",
+    stalledAt: now(),
+    stalledBayId: assignedBayId,
+    breakdownReason: reason,
+    lastEvent: "RESPONSE_TEAM_DISPATCHED",
+  });
+
+  // 2. Remove stalled truck from bay queue and re-allocate bay to next in queue
+  const queuedVehicles = Object.entries(targetBay.queuedVehicles || {});
+  let reallocatedTruck = null;
+
+  if (queuedVehicles.length > 0) {
+    await ref(`yard/bays/${assignedBayId}/queuedVehicles/${truck.id}`).remove();
+    const nextItem = queuedVehicles.find(([id]) => id !== truck.id);
+    if (nextItem) {
+      reallocatedTruck = nextItem[1];
+    }
+  }
+
+  // 3. Create Anomaly Fact for Response Team
+  const anomaly = fact(
+    "MECHANICAL_BREAKDOWN",
+    assignedBayId,
+    truck.id,
+    `CRITICAL ALERT FOR RESPONSE TEAM: Vehicle ${truck.regNo} stalled en route to Gantry ${assignedBayId} (>3 min elapsed). Potential mechanical breakdown. Response team dispatched to field location. Gantry ${assignedBayId} re-assigned${reallocatedTruck ? ` to ${reallocatedTruck.regNo}` : ""}.`,
+    "critical",
+    {
+      regNo: truck.regNo,
+      stalledBayId: assignedBayId,
+      reallocatedRegNo: reallocatedTruck?.regNo || null,
+      responseTeamStatus: "DISPATCHED",
+    }
+  );
+
+  await ref(`${PATH}/${anomaly.signature}`).set({
+    ...anomaly,
+    detectedAt: now(),
+    status: "OPEN",
+  });
+
+  // 4. Broadcast Real-time Events for Voice & AlertCenter
+  const broadcastPayload = {
+    truckId: truck.id,
+    regNo: truck.regNo,
+    bayId: assignedBayId,
+    reallocatedRegNo: reallocatedTruck?.regNo || null,
+    reason,
+    voiceAnnouncement: `Alert for Response Team! Vehicle ${truck.regNo} was assigned to Gantry Bay ${assignedBayId} but has not arrived within 3 minutes due to suspected mechanical breakdown in the yard. Response team dispatched to inspect. Gantry Bay ${assignedBayId} has been automatically re-allocated.`,
+    timestamp: now(),
+  };
+
+  await notifyEvent("truck:stalled", broadcastPayload);
+  await notifyEvent("responseTeam:dispatched", broadcastPayload);
+  await sendAlert("Response Team Dispatched - Stalled Vehicle", broadcastPayload.voiceAnnouncement, "critical");
+
+  return broadcastPayload;
+}
+
+export async function resolveStalledVehicle(truckId) {
+  await ref(`yard/trucks/${truckId}`).update({
+    status: "WAITING",
+    resolvedAt: now(),
+    lastEvent: "MECHANICAL_REPAIRED_REQUEUED",
+  });
+  
+  await notifyEvent("truck:repaired", {
+    truckId,
+    timestamp: now(),
+  });
+  
+  return { success: true, truckId };
+}

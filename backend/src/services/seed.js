@@ -24,6 +24,9 @@ export const SEED_MANIFEST = [
   { regNo: "KKH 135E", driver: "David Omondi", driverPhone: "+254711000008", product: PRODUCTS.DIESEL, capacityLiters: 45_000, tareKg: 20_500 },
   { regNo: "KMJ 864F", driver: "Faith Akinyi", driverPhone: "+254711000009", product: PRODUCTS.PETROL, capacityLiters: 34_500, tareKg: 17_000 },
   { regNo: "KNK 753G", driver: "George Barasa", driverPhone: "+254711000010", product: PRODUCTS.DIESEL, capacityLiters: 41_000, tareKg: 19_000 },
+  { regNo: "KDX 110X", driver: "Kipchoge Keino", driverPhone: "+254711000011", product: PRODUCTS.DIESEL, capacityLiters: 30_000, tareKg: 15_000 },
+  { regNo: "KDX 100X", driver: "Kipchoge Keino", driverPhone: "+254711000012", product: PRODUCTS.DIESEL, capacityLiters: 30_000, tareKg: 15_000 },
+  { regNo: "KDD 001D", driver: "Karanja Kibaki", driverPhone: "+254711000099", product: PRODUCTS.DIESEL, capacityLiters: 45_000, tareKg: 20_500, stagingYard: "Yard 2" },
 ];
 
 /**
@@ -65,6 +68,23 @@ export async function seedYard() {
       });
     }
     console.log("[seed] Populated scheduled batch manifest");
+  } else {
+    // Ensure KDD 001D is always present in manifest
+    const hasKdd001d = Object.values(existing).some((v) => String(v.regNo).replace(/\s+/g, "").toUpperCase() === "KDD001D");
+    if (!hasKdd001d) {
+      const kddBatchId = generateKey("batch_kdd001d_").toLowerCase();
+      await ref(`yard/manifest/vehicles/${kddBatchId}`).set({
+        regNo: "KDD 001D",
+        driver: "Karanja Kibaki",
+        driverPhone: "+254711000099",
+        product: PRODUCTS.DIESEL,
+        capacityLiters: 45_000,
+        tareKg: 20_500,
+        stagingYard: "Yard 2",
+        status: "SCHEDULED",
+        allocatedAt: Date.now(),
+      });
+    }
   }
 }
 

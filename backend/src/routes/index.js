@@ -4,6 +4,7 @@ import checkpointRouter from "./checkpoint.routes.js";
 import controlPlaneRouter from "./controlPlane.routes.js";
 import authRouter from "./auth.routes.js";
 import driverRouter from "./driver.routes.js";
+import gantryRouter from "./gantry.routes.js";
 import { onEvent } from "../services/eventBus.js";
 
 const router = Router();
@@ -53,5 +54,6 @@ router.use("/gate", gateRouter);
 router.use("/checkpoints", checkpointRouter);
 router.use("/control-plane", controlPlaneRouter);
 router.use("/driver", driverRouter);
+router.use("/gantry", gantryRouter);
 
 export default router;

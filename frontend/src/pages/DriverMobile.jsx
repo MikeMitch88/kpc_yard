@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { Smartphone, RefreshCw, MapPin, BellRing, Clock, Volume2, VolumeX, ScanLine } from "lucide-react";
+import {
+  Smartphone,
+  RefreshCw,
+  MapPin,
+  BellRing,
+  Clock,
+  Volume2,
+  VolumeX,
+  ScanLine,
+  CheckCircle2,
+  ShieldCheck,
+  Award,
+} from "lucide-react";
 import { useDemoAuth } from "../hooks/useDemoAuth.js";
 import { useYardStream } from "../hooks/useYardStream.js";
 import { yardApi } from "../services/api.js";
@@ -14,6 +26,7 @@ export default function DriverMobile() {
   const [alertFeed, setAlertFeed] = useState([]);
   const [error, setError] = useState(null);
   const [voiceOn, setVoiceOn] = useState(() => isVoiceEnabled());
+  const [departureDisplay, setDepartureDisplay] = useState(null); // { numberPlate, exitTime }
 
   useYardStream({
     "gate:entry": (m) => {
@@ -21,7 +34,11 @@ export default function DriverMobile() {
     },
     "bay:assigned": (m) => {
       pushSms("Bay assigned", `Report to ${m.payload.bayId} — ETA ~${m.payload.etaMinutes} min`);
-      speak(`Attention driver. Bay ${m.payload.bayId} assigned. Estimated wait ${m.payload.etaMinutes} minutes. Proceed to gantry ${String(m.payload.bayId).replace(/^G/i, "")}.`);
+      speak(
+        `Attention driver. Bay ${m.payload.bayId} assigned. Estimated wait ${m.payload.etaMinutes} minutes. Proceed to gantry ${String(
+          m.payload.bayId,
+        ).replace(/^G/i, "")}.`,
+      );
       if (m.payload.token === token) refresh();
     },
     "queue:sequenced": () => {
@@ -36,10 +53,30 @@ export default function DriverMobile() {
       pushSms("Pre-movement", `Gantry ${m.payload.bayId} nearly clear — prepare to move forward`);
       speak(`Gantry ${m.payload.bayId} is nearly clear. Get ready to move forward to the gantry.`);
     },
+    "GANTRY_TANKER_EXITED": (m) => {
+      const isMyTruck =
+        (status && (m.payload.token === status.token || m.payload.numberPlate === status.regNo)) ||
+        (token && m.payload.token === token);
+
+      if (isMyTruck || !token) {
+        setDepartureDisplay({
+          numberPlate: m.payload.numberPlate,
+          bay: m.payload.bay,
+          exitTime: m.payload.exitTime,
+        });
+        pushSms("Gantry Exit Recorded", `Vehicle ${m.payload.numberPlate} departure detected by ANPR camera.`);
+        speak(
+          `Thank you for your visit! Vehicle ${m.payload.numberPlate}. Your loading process has been completed and your departure has been recorded. Welcome again another day, drive safely!`,
+        );
+        refresh();
+      }
+    },
     "truck:exited": (m) => {
-      pushSms("Journey complete", `Vehicle ${m.payload.regNo} cleared the exit gate — token redeemed.`);
-      speak(`Vehicle ${m.payload.regNo} has exited the yard. Journey complete.`);
-      refresh();
+      if (status && (m.payload.token === status.token || m.payload.regNo === status.regNo)) {
+        pushSms("Journey complete", `Vehicle ${m.payload.regNo} cleared the exit gate — token redeemed.`);
+        speak(`Vehicle ${m.payload.regNo} has exited the yard. Journey complete. Safe travels!`);
+        refresh();
+      }
     },
     "compliance:violation": (m) => pushSms("Compliance notice", m.payload.message),
   });
@@ -61,6 +98,13 @@ export default function DriverMobile() {
     try {
       const data = await yardApi.driverStatus(token);
       setStatus(data);
+      if (data?.status === "COMPLETED" || data?.exitDetected) {
+        setDepartureDisplay({
+          numberPlate: data.regNo,
+          bay: data.bayId,
+          exitTime: data.exitedAt,
+        });
+      }
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -84,7 +128,11 @@ export default function DriverMobile() {
     if (!token) return;
     setScanning(true);
     try {
-      await yardApi.scanCheckpoint({ token, checkpoint: "EXIT" });
+      if (status?.regNo) {
+        await yardApi.gantryExitDetection({ numberPlate: status.regNo, cameraId: "GANTRY-EXIT-01" });
+      } else {
+        await yardApi.scanCheckpoint({ token, checkpoint: "EXIT" });
+      }
       pushSms("Exit gate scanned", "Barrier raised — token redeemed. Safe journey.");
       speak("Exit barrier cleared. Your journey is complete. Safe travels.");
       await refresh();
@@ -113,6 +161,55 @@ export default function DriverMobile() {
           <Smartphone className="h-5 w-5 text-emerald-300" />
         </div>
       </div>
+
+      {/* Driver-Facing Departure Display Billboard */}
+      {departureDisplay && (
+        <div className="relative overflow-hidden rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-950 via-slate-900 to-black p-5 text-center shadow-[0_0_35px_rgba(16,185,129,0.3)] animate-in fade-in zoom-in duration-300">
+          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+            <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+          </div>
+
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-emerald-400">
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+          </p>
+          <h2 className="text-base font-black uppercase tracking-wider text-white">
+            THANK YOU FOR YOUR VISIT
+          </h2>
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-emerald-400">
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+          </p>
+
+          <div className="my-4 rounded-lg border border-white/10 bg-black/50 py-3">
+            <p className="text-[10px] uppercase tracking-widest text-slate-400">Vehicle Number Plate</p>
+            <p className="mt-1 font-mono text-2xl font-black tracking-widest text-emerald-300">
+              {departureDisplay.numberPlate}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-left text-xs bg-emerald-950/40 border border-emerald-500/20 rounded-lg p-2.5 mb-3">
+            <div>
+              <span className="text-[10px] uppercase text-slate-400 block">Loading Status</span>
+              <span className="font-bold text-emerald-300">COMPLETED ✓</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase text-slate-400 block">Gantry Departure</span>
+              <span className="font-bold text-emerald-300">RECORDED ✓</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-300 italic">Welcome again another day.</p>
+          <p className="mt-1 font-bold text-sm uppercase tracking-wider text-emerald-400 font-mono">
+            DRIVE SAFELY
+          </p>
+
+          <button
+            onClick={() => setDepartureDisplay(null)}
+            className="mt-4 btn-ghost text-xs w-full border border-white/10 py-1.5"
+          >
+            Dismiss Departure Card
+          </button>
+        </div>
+      )}
 
       <div className="card flex gap-2">
         <input
@@ -149,7 +246,9 @@ export default function DriverMobile() {
                 <div key={label} className="flex-1 text-center">
                   <div
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full border text-[10px] ${
-                      i + 1 <= stageIndex ? "border-emerald-400 bg-emerald-500/20 text-emerald-300" : "border-white/10 text-slate-600"
+                      i + 1 <= stageIndex
+                        ? "border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                        : "border-white/10 text-slate-600"
                     }`}
                   >
                     {i + 1}
@@ -176,7 +275,8 @@ export default function DriverMobile() {
               <div className="rounded-lg border border-emerald-400/30 bg-emerald-950/40 p-3 text-xs text-emerald-200">
                 <p className="font-semibold">{status.bay.name}</p>
                 <p className="mt-0.5 text-emerald-300/80">
-                  {status.bay.product} · {status.bay.pumpRateLpm} L/min · queue {Object.keys(status.bay.queuedVehicles ?? {}).length}
+                  {status.bay.product} · {status.bay.pumpRateLpm} L/min · queue{" "}
+                  {Object.keys(status.bay.queuedVehicles ?? {}).length}
                 </p>
               </div>
             )}
@@ -188,7 +288,8 @@ export default function DriverMobile() {
 
           {status.status === "LOADED" && (
             <button onClick={scanExit} disabled={scanning} className="btn-primary w-full text-xs">
-              <ScanLine className="mr-1 h-3 w-3" /> {scanning ? "Scanning exit gate…" : "Scan exit gate — complete journey"}
+              <ScanLine className="mr-1 h-3 w-3" />{" "}
+              {scanning ? "Triggering exit camera…" : "Pass Gantry Exit Camera — Complete Journey"}
             </button>
           )}
         </>

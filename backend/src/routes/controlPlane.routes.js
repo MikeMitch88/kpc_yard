@@ -16,6 +16,8 @@ import {
   complianceViolations,
   resolveCompliance,
   integrations,
+  stalledTruck,
+  resolveStalled,
 } from "../controllers/controlPlane.controller.js";
 
 const router = Router();
@@ -24,15 +26,14 @@ const manager = authorize(ROLES.DEPOT_MANAGER, ROLES.EXECUTIVE);
 const executive = authorize(ROLES.EXECUTIVE, ROLES.DEPOT_MANAGER);
 
 /*
- * Read-only telemetry is public: the Executive dashboard renders these
- * immediately, before any demo token has been minted, so auth would
- * otherwise 401 on first paint. These stay GET-only and carry no secrets.
+ * Read-only telemetry & demo response triggers stay accessible.
  */
 router.get("/metrics", metrics);
 router.get("/esg", esg);
 router.get("/compliance", compliance);
 router.get("/integrations", integrations);
 router.get("/snapshot", yardSnapshot);
+router.post("/stalled-truck", stalledTruck);
 
 /* Everything below the line requires a valid session + role. */
 router.use(authenticate);
@@ -50,5 +51,6 @@ router.post("/bay/:bayId/health", manager, bayHealthOverride);
 router.post("/allocate", manager, manualAlloc);
 router.get("/compliance/violations", manager, complianceViolations);
 router.post("/compliance/violations/:signature/resolve", manager, resolveCompliance);
+router.post("/stalled-truck/:truckId/resolve", resolveStalled);
 
 export default router;

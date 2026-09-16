@@ -1,4 +1,4 @@
-import { runClosedLoopCycle, listOpenAnomalies, detector } from "../services/autoReroute.service.js";
+import { runClosedLoopCycle, listOpenAnomalies, detector, handleStalledVehicle, resolveStalledVehicle } from "../services/autoReroute.service.js";
 import { computeMetrics, throughputSeries } from "../services/analytics.service.js";
 import { getComplianceSummary, listOpenComplianceViolations, resolveComplianceViolation } from "../services/compliance.service.js";
 import { computeEsgScorecard } from "../services/esg_scorecard.service.js";
@@ -6,6 +6,26 @@ import { ref } from "../config/firebase.js";
 import env from "../config/env.js";
 import { notifyEvent } from "../services/eventBus.js";
 import { getLiveBays, getLiveTrucks, allocateBayForTruck } from "../services/yard.service.js";
+
+export async function stalledTruck(req, res, next) {
+  try {
+    const { truckId, bayId, reason } = req.body || {};
+    const result = await handleStalledVehicle(truckId, bayId, reason);
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function resolveStalled(req, res, next) {
+  try {
+    const { truckId } = req.params;
+    const result = await resolveStalledVehicle(truckId);
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    return next(err);
+  }
+}
 
 export async function runCycle(req, res, next) {
   try {

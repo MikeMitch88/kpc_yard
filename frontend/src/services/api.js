@@ -116,4 +116,10 @@ export const yardApi = {
   allocate: (truckId) => api.post("/control-plane/allocate", { truckId }).then((r) => r.data.data),
   startLoading: (truckId, bayId) => api.post("/checkpoints/loading/start", { truckId, bayId }).then((r) => r.data.data),
   completeLoading: (truckId, bayId) => api.post("/checkpoints/loading/complete", { truckId, bayId }).then((r) => r.data.data),
+  gantryExitDetection: (payload) => api.post("/gantry/exit-detection", payload).then((r) => r.data.data),
+  getGantryCameras: () => api.get("/gantry/cameras").then((r) => r.data.data),
+  updateGantryCamera: (cameraId, updates) => api.patch(`/gantry/cameras/${cameraId}`, updates).then((r) => r.data.data),
+  getRecentDepartures: (limit = 10) => api.get(`/gantry/recent-departures?limit=${limit}`).then((r) => r.data.data),
+  getExitAudit: (limit = 50) => api.get(`/gantry/audit?limit=${limit}`).then((r) => r.data.data),
+  manualExitClearance: (payload) => api.post("/gantry/manual-exit", payload).then((r) => r.data.data),
 };
